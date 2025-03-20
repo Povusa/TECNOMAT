@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat de Parte de Trabajo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 500px;
+            height: 100%;
+            max-height: 700px;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .chat-header {
+            background-color: #2a9da9;
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 20px;
+            margin-bottom: 5px;
+            word-wrap: break-word;
+        }
+        .bot-message {
+            background-color: #f0f0f0;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            white-space: pre-line;
+        }
+        .user-message {
+            background-color: #d5f9ff;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+        .chat-footer {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #e0e0e0;
+            background-color: white;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            font-size: 14px;
+            outline: none;
+        }
+        .send-button {
+            background-color: #2a9da9;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding: 0 10px;
+        }
+        .option-button {
+            background-color: #f0f0f0;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .option-button:hover {
+            background-color: #e0e0e0;
+        }
+        .download-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        .reset-button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .loading-dots {
+            display: flex;
+        }
+        .loading-dots span {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #ccc;
+            margin: 0 5px;
+            animation: loading 1.5s infinite;
+        }
+        .loading-dots span:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+        .loading-dots span:nth-child(3) {
+            animation-delay: 1s;
+        }
+        @keyframes loading {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <span>Registro de Partes de Trabajo</span>
+            <button id="resetButton" class="reset-button" style="display: none;">Nuevo Parte</button>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <!-- Los mensajes se agregarán aquí dinámicamente -->
+        </div>
+        <div id="optionsContainer" class="options-container">
+            <!-- Las opciones se agregarán aquí dinámicamente -->
+        </div>
+        <div class="chat-footer">
+            <input type="text" id="chatInput" class="chat-input" placeholder="Escribe tu mensaje..." autocomplete="off">
+            <button id="sendButton" class="send-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let sessionId = null;
+        let currentState = null;
+        let isProcessing = false;
+
+        // Elementos del DOM
+        const chatBody = document.getElementById('chatBody');
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendButton');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const resetButton = document.getElementById('resetButton');
+
+        // API URL base (cambiar según configuración)
+        const API_BASE_URL = 'http://localhost:5000/api';
+
+        // Función para iniciar la conversación
+        async function startConversation() {
+            try {
+                // Generar un ID de sesión único
+                sessionId = Date.now().toString();
+                
+                // Mostrar indicador de carga
+                showLoading();
+                
+                // Llamar a la API para iniciar la conversación
+                const response = await fetch(`${API_BASE_URL}/start`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ session_id: sessionId })
+                });
+                
+                const data = await response.json();
+                
+                // Ocultar indicador de carga
+                hideLoading();
+                
+                // Actualizar el estado actual
+                currentState = data.estado;
+                
+                // Mostrar mensaje de bienvenida
+                addBotMessage(data.mensaje);
+                
+                // Mostrar opciones si están disponibles
+                if (data.opciones && data.opciones.length > 0) {
+                    showOptions(data.opciones);
+                }
+                
+                // Mostrar botón de reinicio
+                resetButton.style.display = 'inline-block';
+            } catch (error) {
+                console.error('Error al iniciar la conversación:', error);
+                hideLoading();
+                addBotMessage('Ha ocurrido un error al iniciar la conversación. Por favor, intenta nuevamente.');
+            }
+        }
+
+        // Función para enviar un mensaje
+        async function sendMessage(message) {
+            if (!message.trim() || isProcessing) return;
+            
+            isProcessing = true;
+            
+            // Mostrar el mensaje del usuario
+            addUserMessage(message);
+            
+            // Limpiar el campo de entrada
+            chatInput.value = '';
+            
+            // Limpiar opciones
+            clearOptions();
+            
+            // Mostrar indicador de carga
+            showLoading();
+            
+            try {
+                // Llamar a la API para enviar el mensaje
+                const response = await fetch(`${API_BASE_URL}/message`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        mensaje: message
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Ocultar indicador de carga
+                hideLoading();
+                
+                // Actualizar el estado actual
+                currentState = data.estado;
+                
+                // Mostrar la respuesta del bot
+                addBotMessage(data.mensaje);
+                
+                // Mostrar opciones si están disponibles
+                if (data.opciones && data.opciones.length > 0) {
+                    showOptions(data.opciones);
+                }
+                
+                // Si hay un archivo disponible, mostrar el botón de descarga
+                if (data.archivo_disponible) {
+                    showDownloadButton();
+                }
+            } catch (error) {
+                console.error('Error al enviar el mensaje:', error);
+                hideLoading();
+                addBotMessage('Ha ocurrido un error al procesar tu mensaje. Por favor, intenta nuevamente.');
+            } finally {
+                isProcessing = false;
+            }
+        }
+
+        // Función para seleccionar una opción
+        function selectOption(option) {
+            // Simplemente llamamos a sendMessage con la opción seleccionada
+            sendMessage(option);
+        }
+
+        // Función para descargar el informe
+        function downloadReport() {
+            // Redirigir al usuario a la URL de descarga
+            window.location.href = `${API_BASE_URL}/download/${sessionId}`;
+        }
+
+        // Función para reiniciar la conversación
+        async function resetConversation() {
+            try {
+                // Llamar a la API para reiniciar la sesión
+                await fetch(`${API_BASE_URL}/reset/${sessionId}`, {
+                    method: 'POST'
+                });
+                
+                // Limpiar el chat
+                chatBody.innerHTML = '';
+                
+                // Limpiar opciones
+                clearOptions();
+                
+                // Iniciar nueva conversación
+                startConversation();
+            } catch (error) {
+                console.error('Error al reiniciar la conversación:', error);
+                addBotMessage('Ha ocurrido un error al reiniciar la conversación. Por favor, recarga la página.');
+            }
+        }
+
+        // Función para agregar mensaje del bot
+        function addBotMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot-message';
+            messageDiv.textContent = message;
+            chatBody.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        // Función para agregar mensaje del usuario
+        function addUserMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user-message';
+            messageDiv.textContent = message;
+            chatBody.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        // Función para mostrar opciones
+        function showOptions(options) {
+            clearOptions();
+            
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.textContent = option;
+                button.addEventListener('click', () => selectOption(option));
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        // Función para limpiar opciones
+        function clearOptions() {
+            optionsContainer.innerHTML = '';
+        }
+
+        // Función para mostrar botón de descarga
+        function showDownloadButton() {
+            // Verificar si ya existe un botón de descarga
+            const existingButton = document.querySelector('.download-button');
+            if (existingButton) {
+                return;
+            }
+            
+            const downloadBtn = document.createElement('button');
+            downloadBtn.className = 'download-button';
+            downloadBtn.textContent = 'Descargar Parte de Trabajo';
+            downloadBtn.addEventListener('click', downloadReport);
+            
+            const actionButtons = document.createElement('div');
+            actionButtons.className = 'action-buttons';
+            actionButtons.appendChild(downloadBtn);
+            
+            chatBody.appendChild(actionButtons);
+            scrollToBottom();
+        }
+
+        // Función para mostrar indicador de carga
+        function showLoading() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'loading';
+            loadingDiv.id = 'loading';
+            
+            const loadingDots = document.createElement('div');
+            loadingDots.className = 'loading-dots';
+            
+            for (let i = 0; i < 3; i++) {
+                const dot = document.createElement('span');
+                loadingDots.appendChild(dot);
+            }
+            
+            loadingDiv.appendChild(loadingDots);
+            chatBody.appendChild(loadingDiv);
+            scrollToBottom();
+        }
+
+        // Función para ocultar indicador de carga
+        function hideLoading() {
+            const loadingDiv = document.getElementById('loading');
+            if (loadingDiv) {
+                loadingDiv.remove();
+            }
+        }
+
+        // Función para desplazarse al final del chat
+        function scrollToBottom() {
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // Event listeners
+        sendButton.addEventListener('click', () => sendMessage(chatInput.value));
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage(chatInput.value);
+            }
+        });
+        resetButton.addEventListener('click', resetConversation);
+
+        // Iniciar conversación al cargar la página
+        document.addEventListener('DOMContentLoaded', startConversation);
+    </script>
+</body>
+</html>
