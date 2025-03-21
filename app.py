@@ -1,7 +1,7 @@
 import os
 import logging
 from datetime import datetime
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, render_template
 from openpyxl import load_workbook
 from flask_cors import CORS
 
@@ -30,8 +30,9 @@ CONTRASENA_CORRECTA = "2579"
 user_sessions = {}
 
 @app.route('/')
-def index():
-    return "API de registro de partes de trabajo funcionando"
+def home():
+    return render_template('index.html')
+#"MIGUEL de registro de partes de trabajo funcionando"
 
 @app.route('/api/start', methods=['POST'])
 def start_conversation():
